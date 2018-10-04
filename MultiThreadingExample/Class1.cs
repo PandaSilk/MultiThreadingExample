@@ -73,9 +73,8 @@ private static void ProcessWork(object callback) {
 	int SleepTime = (1000 * RND.Next(1, 20));
 
 	// Show the work start and end
-	//TD[T.ID].ISRUNNING = true;
 	Console.WriteLine("ID:" + T.ID + ",["+TD[T.ID].RUNCOUNT+"] START, SLEEPTIME:" + SleepTime);
-	Thread.Sleep(SleepTime);
+	Thread.Sleep(SleepTime); //<--- This is to simulate actual work being done.
 	Console.WriteLine("ID:" + T.ID + ",["+TD[T.ID].RUNCOUNT+"] END");
 	TD[T.ID].RUNCOUNT++;
 	TD[T.ID].ISRUNNING = false;
