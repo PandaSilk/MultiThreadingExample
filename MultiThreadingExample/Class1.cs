@@ -12,10 +12,12 @@ class Class1 {
 	public class ThreadDetails {
 		public bool ISRUNNING { get; set; }
 		public int ID { get; set; }
+		public int RUNCOUNT { get; set; }
 	}
 
 	// CONFIG
 	public static int MaxThreads = 10;
+	public static bool RepeatProcess = true;
 	public static List<ThreadDetails> TD = new List<ThreadDetails>();
 
 // CHECK IF ANY WORK IS RUNNING
@@ -43,7 +45,9 @@ public void Main() {
 	ProcessPool();
 
 	// Wait until all work is done before quiting
+	// Check every 1 sec, if repeat is on, repeat the process for non-running works
 	do {
+	if (RepeatProcess == true) { ProcessPool(); }
 	Thread.Sleep(1000);
 	} while (ThreadsAreRunning() == true);
 
@@ -52,12 +56,15 @@ public void Main() {
 // SETUP WORK
 private static void ProcessPool() {
 	foreach (ThreadDetails T in TD) {
-	ThreadPool.QueueUserWorkItem(new WaitCallback(Process), T);
+	if (T.ISRUNNING == false) {
+	TD[T.ID].ISRUNNING = true;
+	ThreadPool.QueueUserWorkItem(new WaitCallback(ProcessWork), T);
+	}
 	}
 }
 
 // DO WORK AND END
-private static void Process(object callback) {
+private static void ProcessWork(object callback) {
 	// Pass details to Processing Function
 	ThreadDetails T = (ThreadDetails)callback;
 
@@ -66,10 +73,11 @@ private static void Process(object callback) {
 	int SleepTime = (1000 * RND.Next(1, 20));
 
 	// Show the work start and end
-	TD[T.ID].ISRUNNING = true;
-	Console.WriteLine("ID:" + T.ID + ", START, SLEEPTIME:" + SleepTime);
+	//TD[T.ID].ISRUNNING = true;
+	Console.WriteLine("ID:" + T.ID + ",["+TD[T.ID].RUNCOUNT+"] START, SLEEPTIME:" + SleepTime);
 	Thread.Sleep(SleepTime);
-	Console.WriteLine("ID:" + T.ID + ", END");
+	Console.WriteLine("ID:" + T.ID + ",["+TD[T.ID].RUNCOUNT+"] END");
+	TD[T.ID].RUNCOUNT++;
 	TD[T.ID].ISRUNNING = false;
 }
 
